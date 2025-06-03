@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Student Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* CSS Variables for better theming */
+      :root {
+        --primary-color: #4f46e5;
+        --primary-dark: #3729a3;
+        --secondary-color: #9333ea;
+        --text-color-light: #333;
+        --text-color-dark: #eee;
+        --background-light: #f5f7fa;
+        --background-dark: #1a1a2e;
+        --card-bg-light: #fff;
+        --card-bg-dark: #2a2a4a;
+        --sidebar-bg-light: #fff;
+        --sidebar-bg-dark: #1f1f1f;
+        --border-color-light: #eee;
+        --border-color-dark: #333;
+        --shadow-light: rgba(0, 0, 0, 0.1);
+        --shadow-dark: rgba(255, 255, 255, 0.08);
+
+        /* Calendar specific colors */
+        --calendar-header-bg-light: linear-gradient(135deg, #1976d2, #42a5f5); /* Blue gradient */
+        --calendar-header-bg-dark: linear-gradient(135deg, #0e4c8d, #1a71c2); /* Darker blue gradient */
+        --calendar-day-hover-light: #e0f2f7;
+        --calendar-day-hover-dark: #3b3b6a;
+        --calendar-event-light: #d1e7dd; /* Light green for events */
+        --calendar-event-dark: #1f4f3e; /* Dark green for events */
+        --calendar-today-border-light: #ff6f00; /* Orange for today border */
+        --calendar-today-border-dark: #fb8c00; /* Orange for today border */
+        --calendar-today-bg-light: #fff3e0; /* Light orange background */
+        --calendar-today-bg-dark: #4d3100; /* Dark orange background */
+
+
+        /* Card specific colors (can be moved to vars if many variations) */
+        --card-join-light: #6366f1;
+        --card-join-dark: #5759c9;
+        --card-code-light: #8b5cf6;
+        --card-code-dark: #6a3fcf;
+        --card-notes-light: #ec4899;
+        --card-notes-dark: #c8327c;
+        --card-submit-light: #22c55e;
+        --card-submit-dark: #1b8b43;
+        --card-discuss-light: #facc15;
+        --card-discuss-dark: #d8b918;
+        --card-internship-light: #ef4444;
+        --card-internship-dark: #d73b3b;
+        --card-feedback-light: #0ea5e9;
+        --card-feedback-dark: #0284c7;
+        --card-profile-light: #f97316;
+        --card-profile-dark: #ea580c;
+        --card-contact-light: #14b8a6;
+        --card-contact-dark: #0d9488;
+      }
+
+      /* Cosmic Background Animations */
+      .cosmic-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle var(--duration) infinite ease-in-out;
+        opacity: 0;
+      }
+
+      .comet {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.8) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(45deg);
+        animation: comet var(--duration) linear infinite;
+        opacity: 0;
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes comet {
+        0% {
+          transform: translateX(0) translateY(0) rotate(45deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(1000px) translateY(-500px) rotate(45deg);
+          opacity: 0;
+        }
+      }
+
+      /* Light Mode Galaxy */
+      body:not(.dark) .cosmic-bg {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      }
+
+      body:not(.dark) .star {
+        background: rgba(108, 99, 255, 0.6);
+      }
+
+      body:not(.dark) .comet {
+        background: linear-gradient(
+          to right,
+          rgba(108, 99, 255, 0) 0%,
+          rgba(108, 99, 255, 0.6) 50%,
+          rgba(108, 99, 255, 0) 100%
+        );
+      }
+
+      /* Dark Mode Galaxy */
+      body.dark .cosmic-bg {
+        background: linear-gradient(135deg, #0f0c29 0%, #0a081c 100%);
+      }
+
+      body.dark .star {
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      body.dark .comet {
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.8) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+      }
+
+      /* Reset */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body,
+      html {
+        height: 100%;
+        font-family: "Inter", sans-serif;
+        background: transparent;
+        transition: background 0.3s, color 0.3s;
+        color: var(--text-color-light);
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(100, 100, 100, 0.4);
+        border-radius: 10px;
+        transition: background-color 0.3s ease;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(100, 100, 100, 0.6);
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(100, 100, 100, 0.4) transparent;
+      }
+
+      body.dark {
+        color: var(--text-color-dark);
+      }
+
+      /* Layout */
+      .layout {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        background: var(--sidebar-bg-light);
+        box-shadow: 2px 0 8px var(--shadow-light);
+        padding: 24px;
+        overflow-y: auto;
+        transition: left 0.3s ease, background 0.3s, box-shadow 0.3s;
+        z-index: 100;
+      }
+      body.dark .sidebar {
+        background: var(--sidebar-bg-dark);
+        box-shadow: 2px 0 8px var(--shadow-dark);
+      }
+
+      /* Student avatar & info */
+      .student-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-color-light);
+        transition: border-color 0.3s;
+      }
+      body.dark .student-info {
+        border-bottom: 1px solid var(--border-color-dark);
+      }
+
+      .student-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+        user-select: none;
+        transition: all 0.3s;
+      }
+      body.dark .student-avatar {
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.6);
+      }
+      .student-name {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: inherit;
+        margin-bottom: 4px;
+      }
+      .student-id {
+        color: #666;
+        margin-bottom: 8px;
+        transition: color 0.3s;
+      }
+      body.dark .student-id {
+        color: #aaa;
+      }
+      .student-course {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+      body.dark .student-course {
+        background: #324a75;
+        color: #bbdefb;
+      }
+
+      /* Streak section */
+      .streak-section {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-color-light);
+        transition: border-color 0.3s;
+      }
+      body.dark .streak-section {
+        border-bottom: 1px solid var(--border-color-dark);
+      }
+      .streak-heading {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+      }
+      .streak-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+      }
+      .streak-box {
+        width: 30px;
+        height: 30px;
+        background: #e3eafc;
+        color: #1976d2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: background 0.2s, color 0.2s;
+        border: 2px solid transparent;
+        user-select: none;
+      }
+      .streak-box.active {
+        background: #1976d2;
+        color: #fff;
+      }
+      body.dark .streak-box {
+        background: #2a3a62;
+        color: #bbdefb;
+      }
+      body.dark .streak-box.active {
+        background: #90caf9;
+        color: #121212;
+      }
+      .streak-box.lost-streak {
+        background-color: #ef4444; /* Red */
+        color: #fff;
+      }
+      body.dark .streak-box.lost-streak {
+        background-color: #dc2626; /* Darker red */
+      }
+
+
+      /* Credits Section */
+      .credits-section {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-color-light);
+        transition: border-color 0.3s;
+        text-align: center;
+      }
+      body.dark .credits-section {
+        border-bottom: 1px solid var(--border-color-dark);
+      }
+      .credits-heading {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+      }
+      .credits-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-top: 8px;
+        transition: color 0.3s;
+      }
+      body.dark .credits-value {
+        color: #facc15; /* Yellow for dark mode credits */
+      }
+
+
+      /* Attendance card */
+      .attendance-card {
+        background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+        border-radius: 14px;
+        padding: 18px 14px;
+        color: #fff;
+        margin-top: 16px;
+        text-align: center;
+        user-select: none;
+        transition: all 0.3s;
+      }
+      body.dark .attendance-card {
+        background: linear-gradient(90deg, #1976d2 40%, #64b5f6 100%);
+      }
+      .attendance-percent {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .attendance-status {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      .attendance-label {
+        font-size: 0.95rem;
+        opacity: 0.9;
+      }
+      .attendance-streak-total {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      /* Profile and Logout buttons */
+      .sidebar-actions {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .sidebar-btn {
+        padding: 12px 20px;
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-weight: 600;
+        transition: background 0.3s, transform 0.2s;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .sidebar-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+      body.dark .sidebar-btn {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Main content */
+      .main {
+        margin-left: 260px;
+        padding: 20px;
+        width: calc(100% - 260px);
+        height: 100vh;
+        overflow-y: auto;
+        transition: margin-left 0.3s ease, width 0.3s ease, background 0.3s;
+        background: rgba(255, 255, 255, 0.9);
+      }
+      body.dark .main {
+        background: rgba(24, 24, 24, 0.9);
+      }
+
+      /* Main content sections */
+      .main-content-section {
+        display: block; /* Always visible as there's no settings panel to toggle with */
+      }
+
+      /* Header */
+      .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        padding: 15px 30px;
+        border-radius: 14px;
+        box-shadow: 0 6px 15px var(--shadow-light);
+        color: white;
+        flex-wrap: nowrap;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+      }
+      body.dark .main-header {
+        box-shadow: 0 6px 15px var(--shadow-dark);
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        user-select: none;
+      }
+      .logo span {
+        color: #facc15; /* Yellow */
+      }
+
+      /* Nav links */
+      .nav-links {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background 0.3s, transform 0.2s;
+      }
+      .nav-links a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Notifications card */
+      .notifications-card, .calendar-card {
+        background: var(--card-bg-light);
+        border-radius: 15px;
+        box-shadow: 0 4px 12px var(--shadow-light);
+        overflow: hidden;
+        margin-bottom: 20px;
+        color: var(--text-color-light);
+        user-select: none;
+        transition: all 0.3s;
+        border: 1px solid var(--border-color-light);
+      }
+      body.dark .notifications-card, body.dark .calendar-card {
+        background: var(--card-bg-dark);
+        color: var(--text-color-dark);
+        box-shadow: 0 4px 12px var(--shadow-dark);
+        border: 1px solid var(--border-color-dark);
+      }
+
+      /* Shared card header style */
+      .card-header-styled {
+        padding: 16px;
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s;
+      }
+      body.dark .card-header-styled {
+        background-color: var(--primary-dark);
+      }
+
+      .notification {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color-light);
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      body.dark .notification {
+        border-bottom: 1px solid var(--border-color-dark);
+      }
+      .notification:last-child {
+        border-bottom: none;
+      }
+      .notification:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+      }
+      body.dark .notification:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+
+      .notification-title {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .notification-message {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.4;
+        transition: color 0.3s;
+      }
+      body.dark .notification-message {
+        color: #ccc;
+      }
+      .timestamp {
+        font-size: 11px;
+        color: #999;
+        margin-top: 8px;
+        display: block;
+        transition: color 0.3s;
+      }
+      body.dark .timestamp {
+        color: #888;
+      }
+
+      /* Calendar Card - Enhanced Styles */
+      .calendar-card .card-header-styled {
+        background: var(--calendar-header-bg-light); /* Specific gradient for calendar header */
+      }
+      body.dark .calendar-card .card-header-styled {
+        background: var(--calendar-header-bg-dark); /* Dark mode gradient */
+      }
+
+      .calendar-card {
+        padding: 20px;
+        /* Ensure card bg is still from --card-bg-light/dark */
+      }
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px; /* Increased margin */
+        font-size: 1.3rem; /* Larger font */
+        font-weight: 700; /* Bolder text */
+        color: var(--text-color-light);
+        transition: color 0.3s;
+      }
+      body.dark .calendar-header {
+        color: var(--text-color-dark);
+      }
+
+      .calendar-header button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px; /* Slightly more rounded */
+        padding: 8px 12px; /* More padding */
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        display: flex; /* For icon alignment */
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem; /* Size for SVG icons */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+      .calendar-header button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      }
+      body.dark .calendar-header button {
+        box-shadow: 0 2px 5px rgba(255,255,255,0.1);
+      }
+      body.dark .calendar-header button:hover {
+        box-shadow: 0 4px 8px rgba(255,255,255,0.2);
+      }
+
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px; /* Increased gap */
+        text-align: center;
+      }
+      .day-name {
+        font-weight: bold;
+        font-size: 1rem; /* Slightly larger */
+        color: #777;
+        padding-bottom: 8px; /* Space below day names */
+        transition: color 0.3s;
+      }
+      body.dark .day-name {
+        color: #bbb;
+      }
+      .calendar-day {
+        padding: 10px 0; /* More vertical padding */
+        border-radius: 10px; /* More rounded corners */
+        font-size: 1rem;
+        font-weight: 500;
+        position: relative; /* For event dot */
+        transition: all 0.3s ease;
+        cursor: pointer;
+        user-select: none;
+      }
+      .calendar-day:hover {
+        background-color: var(--calendar-day-hover-light);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      body.dark .calendar-day:hover {
+        background-color: var(--calendar-day-hover-dark);
+        box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+      }
+
+      .calendar-day.current-month {
+        color: var(--text-color-light);
+      }
+      body.dark .calendar-day.current-month {
+        color: var(--text-color-dark);
+      }
+      .calendar-day.other-month {
+        opacity: 0.4; /* More subtle */
+      }
+      .calendar-day.has-event {
+        background-color: var(--calendar-event-light); /* Distinct background for events */
+        color: #1976d2; /* Keep primary blue for text */
+        font-weight: 600;
+        border: 1px solid #c8e6c9; /* Subtle border */
+      }
+      .calendar-day.has-event::after {
+        content: "";
+        position: absolute;
+        bottom: 5px; /* Slightly higher dot */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px; /* Larger dot */
+        height: 6px; /* Larger dot */
+        background-color: #1976d2; /* Blue dot */
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(25, 118, 210, 0.5); /* Subtle glow */
+      }
+      body.dark .calendar-day.has-event {
+        background-color: var(--calendar-event-dark);
+        color: #bbdefb; /* Light blue for text */
+        border: 1px solid #1a3d34; /* Darker border */
+      }
+      body.dark .calendar-day.has-event::after {
+        background-color: #bbdefb;
+        box-shadow: 0 0 4px rgba(187, 222, 251, 0.5);
+      }
+
+      .calendar-day.today {
+        border: 3px solid var(--calendar-today-border-light); /* Thicker, vibrant border */
+        background-color: var(--calendar-today-bg-light); /* Light background for today */
+        font-weight: 700;
+        color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(255,111,0,0.3); /* Outer glow for today */
+      }
+      body.dark .calendar-day.today {
+        border: 3px solid var(--calendar-today-border-dark);
+        background-color: var(--calendar-today-bg-dark);
+        color: var(--text-color-dark);
+        box-shadow: 0 0 0 2px rgba(251,140,0,0.3);
+      }
+
+
+      /* Card grid */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      /* Cards */
+      .card {
+        padding: 20px;
+        border-radius: 18px;
+        color: white;
+        cursor: pointer;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        user-select: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+      body.dark .card {
+        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+      }
+      body.dark .card:hover {
+        box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+      }
+
+      .card h2 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card h2 svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+      }
+      .card p {
+        font-size: 14px;
+        line-height: 1.4;
+        opacity: 0.9;
+      }
+
+      /* Card colors */
+      .join {
+        background-color: var(--card-join-light);
+      }
+      .code {
+        background-color: var(--card-code-light);
+      }
+      .notes {
+        background-color: var(--card-notes-light);
+      }
+      .submit {
+        background-color: var(--card-submit-light);
+      }
+      .discuss {
+        background-color: var(--card-discuss-light);
+        color: var(--text-color-light); /* Discuss card needs specific text color for light mode */
+      }
+      .discuss h2 svg {
+        fill: var(--text-color-light); /* Adjust SVG color for discuss card */
+      }
+      .internship {
+        background-color: var(--card-internship-light);
+      }
+      .feedback {
+        background-color: var(--card-feedback-light);
+      }
+      .profile {
+        background-color: var(--card-profile-light);
+      }
+      .contact {
+        background-color: var(--card-contact-light);
+      }
+
+      /* Dark mode card adjustments */
+      body.dark .join {
+        background-color: var(--card-join-dark);
+      }
+      body.dark .code {
+        background-color: var(--card-code-dark);
+      }
+      body.dark .notes {
+        background-color: var(--card-notes-dark);
+      }
+      body.dark .submit {
+        background-color: var(--card-submit-dark);
+      }
+      body.dark .discuss {
+        background-color: var(--card-discuss-dark);
+        color: var(--text-color-dark); /* Adjust for dark mode */
+      }
+      body.dark .discuss h2 svg {
+        fill: var(--text-color-dark); /* Adjust SVG color for dark mode discuss card */
+      }
+      body.dark .internship {
+        background-color: var(--card-internship-dark);
+      }
+      body.dark .feedback {
+        background-color: var(--card-feedback-dark);
+      }
+      body.dark .profile {
+        background-color: var(--card-profile-dark);
+      }
+      body.dark .contact {
+        background-color: var(--card-contact-dark);
+      }
+
+      /* Bottom Mobile Navigation */
+      .bottom-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--card-bg-light);
+        box-shadow: 0 -2px 10px var(--shadow-light);
+        border-top: 1px solid var(--border-color-light);
+        z-index: 1000;
+        justify-content: space-around;
+        padding: 6px 0;
+        transition: all 0.3s;
+      }
+      .bottom-nav .nav-item {
+        flex: 1;
+        text-align: center;
+        font-size: 13px;
+        color: #555;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .bottom-nav .nav-item span {
+        font-size: 18px;
+      }
+      .bottom-nav .nav-item.active {
+        color: var(--primary-color);
+      }
+      body.dark .bottom-nav {
+        background: var(--sidebar-bg-dark);
+        border-top: 1px solid var(--border-color-dark);
+      }
+      body.dark .bottom-nav .nav-item {
+        color: #aaa;
+      }
+      body.dark .bottom-nav .nav-item.active {
+        color: #facc15;
+      }
+
+      /* Carousel styling */
+      .responsive-carousel {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: 220px; /* Slightly increased height */
+        overflow: hidden;
+        border-radius: 15px;
+        margin: 20px auto;
+        box-shadow: 0 6px 16px var(--shadow-light);
+        background: var(--card-bg-light);
+        transition: all 0.3s;
+      }
+      body.dark .responsive-carousel {
+        background: var(--card-bg-dark);
+        box-shadow: 0 6px 16px var(--shadow-dark);
+      }
+      .carousel-track {
+        display: flex;
+        height: 100%;
+        transition: transform 0.6s ease-in-out;
+        will-change: transform;
+      }
+      .carousel-track img {
+        flex-shrink: 0;
+        width: 100%;
+        height: 100%; /* Fill parent height */
+        object-fit: cover;
+        user-select: none;
+        pointer-events: none;
+      }
+      .carousel-controls {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
+        padding: 0 15px; /* Increased padding */
+        pointer-events: none;
+      }
+      .carousel-controls button {
+        pointer-events: all;
+        background-color: rgba(0, 0, 0, 0.4); /* Slightly lighter overlay */
+        border: none;
+        color: white;
+        font-size: 26px; /* Slightly larger buttons */
+        padding: 8px 14px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .carousel-controls button:hover {
+        background-color: rgba(0, 0, 0, 0.6);
+        transform: scale(1.05);
+      }
+
+      /* Responsive tweaks */
+      @media (max-width: 1024px) {
+        .sidebar {
+          left: -280px;
+        }
+        .sidebar.show {
+          left: 0;
+        }
+        .main {
+          margin-left: 0;
+          width: 100%;
+          padding: 15px;
+        }
+        .main-header {
+          padding: 10px 15px;
+          margin-bottom: 15px;
+        }
+        .nav-links {
+          display: none;
+        }
+        .hamburger {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          font-size: 20px;
+          user-select: none;
+          transition: background 0.3s;
+          margin-right: 15px;
+        }
+        .hamburger:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+        .card-grid {
+          grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+        }
+        .responsive-carousel {
+          height: 180px;
+        }
+      }
+      @media (max-width: 768px) {
+        .bottom-nav {
+          display: flex;
+        }
+        .card-grid {
+          grid-template-columns: 1fr; /* 1 column on mobile */
+          gap: 15px;
+        }
+        .responsive-carousel {
+          height: 150px;
+          margin: 15px auto;
+        }
+        .carousel-controls button {
+          font-size: 20px;
+          padding: 5px 10px;
+        }
+        .notifications-card, .calendar-card {
+            margin-bottom: 15px;
+        }
+        .card {
+            height: 130px;
+            padding: 15px;
+        }
+        .card h2 {
+            font-size: 16px;
+        }
+        .card p {
+            font-size: 13px;
+        }
+        .logo {
+            font-size: 24px;
+        }
+      }
+      @media (min-width: 1025px) {
+        .hamburger {
+          display: none;
+        }
+      }
+
+      /* Dark mode toggle switch */
+      .dark-mode-toggle {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        margin-left: 15px;
+        gap: 8px;
+        font-weight: 600;
+        color: white;
+        font-size: 14px;
+      }
+      .dark-mode-toggle input {
+        width: 35px; /* Wider switch */
+        height: 20px; /* Taller switch */
+        appearance: none;
+        background: #bbb;
+        border-radius: 20px;
+        position: relative;
+        outline: none;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .dark-mode-toggle input:checked {
+        background: #4f46e5;
+      }
+      .dark-mode-toggle input::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px; /* Larger handle */
+        height: 16px; /* Larger handle */
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+      }
+      .dark-mode-toggle input:checked::before {
+        transform: translateX(15px); /* Move further */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cosmic-bg" id="cosmicBg"></div>
+
+    <div class="layout">
+      <aside class="sidebar hide" id="sidebar">
+        <div class="student-info">
+          <div class="student-avatar">I</div>
+          <div class="student-name">IMRAN</div>
+          <div class="student-id">ID: STU20230045</div>
+          <div class="student-course">Computer Science</div>
+        </div>
+
+        <div class="streak-section">
+          <div class="streak-heading">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="orange"
+              class="bi bi-fire"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"
+              />
+            </svg>
+            Streak Tracker
+          </div>
+          <div class="streak-row" id="streakBoxes"></div>
+        </div>
+
+        <div class="credits-section">
+          <div class="credits-heading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="gold" class="bi bi-coin" viewBox="0 0 16 16">
+              <path d="M5.5 9.5a.5.5 0 0 1 0-1h.5v1a.5.5 0 0 1-.5.5zm2-3a.5.5 0 0 1 0-1h.5v1a.5.5 0 0 1-.5.5zm2 2a.5.5 0 0 1 0-1h.5v1a.5.5 0 0 1-.5.5zm.914 1.01a.5.5 0 0 1 .374.653l-.271.936a.5.5 0 0 1-.765.116L8.13 9.954a.5.5 0 0 1-.116-.765l.936-.271a.5.5 0 0 1 .653.374"/>
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14"/>
+              <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764L15 0H1v14a.5.5 0 0 0 .5.5h.567A2 2 0 0 0 2 13.5V13h-.5A1.5 1.5 0 0 0 0 11.5v-3A1.5 1.5 0 0 0 1.5 7zm0 1A.5.5 0 0 0 2 8.5v3a.5.5 0 0 0 .5.5h4.5V13H2.5a1.5 1.5 0 0 1 0-3M13 12.5a1.5 1.5 0 0 0 1.5-1.5V9.282c-.2.276-.45.54-.725.795-.276.255-.559.48-.813.67l.73.955z"/>
+            </svg>
+            My Credits
+          </div>
+          <div class="credits-value" id="currentCredits">0</div>
+        </div>
+
+        <div class="attendance-card">
+          <div class="attendance-percent" id="attendancePercent">0%</div>
+          <div class="attendance-status" id="attendanceStatus">-</div>
+          <div class="attendance-label">This Month</div>
+          <div class="attendance-streak-total" id="attendanceStreakTotal">Total Streak: 0 Days</div>
+        </div>
+
+        <div class="sidebar-actions">
+          <button class="sidebar-btn" onclick="alert('Edit Profile clicked')">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="currentColor"
+              class="bi bi-person-gear"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1zm3.63-4.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92-.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"
+              />
+            </svg>
+            Edit Profile
+          </button>
+          <button class="sidebar-btn" onclick="alert('Logout clicked')">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="currentColor"
+              class="bi bi-door-open"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1"
+              />
+              <path
+                d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V1.5a.5.5 0 0 1 .43-.495l7-1a.5.5 0 0 1 .398.117M11.5 2H11v13h1V2.5a.5.5 0 0 0-.5-.5M4 1.934V15h6V1.077z"
+              />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      <main class="main" id="mainContent">
+        <header class="main-header">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div class="hamburger" id="sidebarToggle" title="Toggle Sidebar">
+              &#9776;
+            </div>
+            <div class="logo">IR <span>SKILLUP</span></div>
+          </div>
+
+          <nav class="nav-links">
+            <a href="#" onclick="alert('Home clicked')">Home</a>
+            <a href="#" onclick="alert('Courses clicked')">Courses</a>
+            <a href="#" onclick="alert('Tasks clicked')">Tasks</a>
+            <a href="#" onclick="alert('Notes clicked')">Notes</a>
+            <a href="#" onclick="alert('Discussion clicked')">Discussion</a>
+            <a href="#" onclick="alert('Internships clicked')">Internships</a>
+            <a href="#" onclick="alert('Contact clicked')">Contact</a>
+          </nav>
+
+          <label class="dark-mode-toggle" title="Toggle Dark Mode">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-circle-half"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 15A7 7 0 1 0 8 1zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16" />
+            </svg>
+            <input type="checkbox" id="darkModeSwitch" />
+          </label>
+        </header>
+
+        <div id="dashboardContent" class="main-content-section">
+            <div class="responsive-carousel">
+            <div class="carousel-track">
+                <img
+                src="https://i0.wp.com/eos.org/wp-content/uploads/2021/12/oceans.jpg?fit=1200%2C200&ssl=1"
+                alt="Image 1"
+                />
+                <img
+                src="https://static.vecteezy.com/system/resources/thumbnails/028/242/808/small/fresh-bananas-falling-into-water-with-a-big-splash-wide-banner-generative-ai-photo.jpeg"
+                alt="Image 2"
+                />
+                <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTthi5dc9bZyV4QFo9XhWWl4htUhb_jTuojvQ&s"
+                alt="Image 3"
+                />
+            </div>
+
+            <div class="carousel-controls">
+                <button onclick="prevSlide()">❮</button>
+                <button onclick="nextSlide()">❯</button>
+            </div>
+            </div>
+
+            <div class="row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="notifications-card" style="flex: 2;">
+                    <div class="card-header-styled">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        fill="currentColor"
+                        class="bi bi-bell-fill"
+                        viewBox="0 0 16 16"
+                    >
+                        <path
+                        d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"
+                        />
+                    </svg>
+                    Notifications
+                    </div>
+                    <div class="notification">
+                    <div class="notification-title">New Message from Professor A</div>
+                    <div class="notification-message">
+                        You received a message regarding your recent assignment submission.
+                    </div>
+                    <div class="timestamp">2 minutes ago</div>
+                    </div>
+                    <div class="notification">
+                    <div class="notification-title">Reminder: Coaching Session</div>
+                    <div class="notification-message">
+                        Don't forget your coaching session at 5 PM today.
+                    </div>
+                    <div class="timestamp">1 hour ago</div>
+                    </div>
+                    <div class="notification">
+                    <div class="notification-title">System Update Completed</div>
+                    <div class="notification-message">
+                        Your app was updated successfully with new features.
+                    </div>
+                    <div class="timestamp">Yesterday</div>
+                    </div>
+                    <div class="notification">
+                        <div class="notification-title">New Course Material</div>
+                        <div class="notification-message">
+                            New lecture notes and readings available for "Advanced Algorithms".
+                        </div>
+                        <div class="timestamp">2 days ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-card">
+                <div class="card-header-styled">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar-event-fill" viewBox="0 0 16 16">
+                        <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-3.5-7h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5"/>
+                    </svg>
+                    Academic Calendar
+                </div>
+                <div class="calendar-header">
+                    <button id="prevMonth" title="Previous Month">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                    </button>
+                    <span id="currentMonthYear"></span>
+                    <button id="nextMonth" title="Next Month">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="day-name">Sun</div>
+                    <div class="day-name">Mon</div>
+                    <div class="day-name">Tue</div>
+                    <div class="day-name">Wed</div>
+                    <div class="day-name">Thu</div>
+                    <div class="day-name">Fri</div>
+                    <div class="day-name">Sat</div>
+                    </div>
+            </div>
+
+            <div class="card-grid">
+            <div class="card join">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-person-video3"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M14 9.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-6 5.7c0 .8.8.8.8.8h6.4s.8 0 .8-.8-.8-3.2-4-3.2-4 2.4-4 3.2"
+                    />
+                    <path
+                    d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h5.243c.122-.326.295-.668.526-1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v7.81c.353.23.656.496.91.783Q16 12.312 16 12V4a2 2 0 0 0-2-2z"
+                    />
+                </svg>
+                Join Class
+                </h2>
+                <p>Enter live classes with a single click.</p>
+            </div>
+            <div class="card code">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-code-slash"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"
+                    />
+                </svg>
+                Code Playground
+                </h2>
+                <p>Practice coding challenges and projects.</p>
+            </div>
+            <div class="card notes">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-journals"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2"
+                    />
+                    <path
+                    d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0"
+                    />
+                </svg>
+                Get Notes
+                </h2>
+                <p>Download and review course notes.</p>
+            </div>
+            <div class="card submit">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-journal-arrow-up"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    fill-rule="evenodd"
+                    d="M8 11a.5.5 0 0 0 .5-.5V6.707l1.146 1.147a.5.5 0 0 0 .708-.708l-2-2a.5.5 0 0 0-.708 0l-2 2a.5.5 0 1 0 .708.708L7.5 6.707V10.5a.5.5 0 0 0 .5.5"
+                    />
+                    <path
+                    d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"
+                    />
+                    <path
+                    d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"
+                    />
+                </svg>
+                Submit Task
+                </h2>
+                <p>Upload your assignments easily.</p>
+            </div>
+            <div class="card discuss">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-chat-dots"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
+                    />
+                    <path
+                    d="m2.165 15.803.02-.004c1.83-.363 2.948-.842 3.468-1.105A9 9 0 0 0 8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6a10.4 10.4 0 0 1-.524 2.318l-.003.011a11 11 0 0 1-.244.637c-.079.186.074.394.273.362a22 22 0 0 0 .693-.125m.8-3.108a1 1 0 0 0-.287-.801C1.618 10.83 1 9.468 1 8c0-3.192 3.004-6 7-6s7 2.808 7 6-3.004 6-7 6a8 8 0 0 1-2.088-.272 1 1 0 0 0-.711.074c-.387.196-1.24.57-2.634.893a11 11 0 0 0 .398-2"
+                    />
+                </svg>
+                Discuss
+                </h2>
+                <p>Join forums and group discussions.</p>
+            </div>
+            <div class="card internship">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-pc-display"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M8 1a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1zm1 13.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0m2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0M9.5 1a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM9 3.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 0-1h-5a.5.5 0 0 0-.5.5M1.5 2A1.5 1.5 0 0 0 0 3.5v7A1.5 1.5 0 0 0 1.5 12H6v2h-.5a.5.5 0 0 0 0 1H7v-4H1.5a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5H7V2z"
+                    />
+                </svg>
+                Internship Offers
+                </h2>
+                <p>Explore internship opportunities.</p>
+            </div>
+            <div class="card feedback">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-person-raised-hand"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207"
+                    />
+                    <path
+                    d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"
+                    />
+                </svg>
+                Feedback
+                </h2>
+                <p>Share your thoughts and improve the experience.</p>
+            </div>
+            <div class="card profile">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-file-person"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M12 1a1 1 0 0 1 1 1v10.755S12 11 8 11s-5 1.755-5 1.755V2a1 1 0 0 1 1-1zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"
+                    />
+                    <path d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                </svg>
+                My Profile
+                </h2>
+                <p>Discover your journey, track your progress.</p>
+            </div>
+            <div class="card contact">
+                <h2>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-telephone"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                    d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"
+                    />
+                </svg>
+                Contact
+                </h2>
+                <p>Reach out to instructors or support team.</p>
+            </div>
+            </div>
+        </div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="#" class="nav-item active" onclick="alert('Home clicked')">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+      <a href="#" class="nav-item" onclick="alert('Code clicked')">
+        <span>💻</span>
+        <small>Code</small>
+      </a>
+      <a href="#" class="nav-item" onclick="alert('Discuss clicked')">
+        <span>💬</span>
+        <small>Discuss</small>
+      </a>
+      <a href="#" class="nav-item" onclick="alert('Internship clicked')">
+        <span>🎓</span>
+        <small>Internship</small>
+      </a>
+      <a href="#" class="nav-item" onclick="alert('Profile clicked')">
+        <span>👤</span>
+        <small>Profile</small>
+      </a>
+    </nav>
+
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const darkModeSwitch = document.getElementById("darkModeSwitch");
+      const streakBoxesContainer = document.getElementById("streakBoxes");
+      const attendancePercentEl = document.getElementById("attendancePercent");
+      const attendanceStatusEl = document.getElementById("attendanceStatus");
+      const attendanceStreakTotalEl = document.getElementById("attendanceStreakTotal");
+      const cosmicBg = document.getElementById("cosmicBg");
+      const currentCreditsEl = document.getElementById("currentCredits");
+
+      // Function to create cosmic background elements
+      function createCosmicBackground(count, type) {
+        for (let i = 0; i < count; i++) {
+          const element = document.createElement("div");
+          element.classList.add(type);
+          element.style.left = `${Math.random() * 100}%`;
+          element.style.top = `${Math.random() * 100}%`;
+          element.style.width = `${Math.random() * 2 + 1}px`;
+          element.style.height = element.style.width;
+          element.style.setProperty("--duration", `${Math.random() * 5 + 3}s`);
+          cosmicBg.appendChild(element);
+        }
+      }
+
+      // Create stars and comets
+      createCosmicBackground(100, "star");
+      createCosmicBackground(10, "comet");
+
+      // Sidebar toggle for small screens
+      sidebarToggle.addEventListener("click", () => {
+        if (sidebar.classList.contains("show")) {
+          sidebar.classList.remove("show");
+          sidebar.classList.add("hide");
+        } else {
+          sidebar.classList.add("show");
+          sidebar.classList.remove("hide");
+        }
+      });
+
+      // Dark mode toggle
+      const applyDarkMode = (isDark) => {
+        if (isDark) {
+          document.body.classList.add("dark");
+          localStorage.setItem("darkMode", "enabled");
+        } else {
+          document.body.classList.remove("dark");
+          localStorage.setItem("darkMode", "disabled");
+        }
+      };
+
+      // Set initial dark mode preference
+      const darkModePreference = localStorage.getItem("darkMode");
+      if (darkModePreference === "enabled") {
+        darkModeSwitch.checked = true;
+        applyDarkMode(true);
+      } else {
+        darkModeSwitch.checked = false;
+        applyDarkMode(false);
+      }
+
+      darkModeSwitch.addEventListener("change", (e) => {
+        applyDarkMode(e.target.checked);
+      });
+
+      // Credit and Streak Logic
+      let currentCredits = parseInt(localStorage.getItem('userCredits')) || 0;
+      let lastStreakDate = localStorage.getItem('lastStreakDate');
+      let currentStreak = parseInt(localStorage.getItem('currentStreak')) || 0;
+
+      function updateCreditsDisplay() {
+        currentCreditsEl.textContent = currentCredits;
+        localStorage.setItem('userCredits', currentCredits);
+      }
+
+      function updateAttendanceStreakTotal() {
+        attendanceStreakTotalEl.textContent = `Total Streak: ${currentStreak} Days`;
+      }
+
+      function formatDate(date) {
+        return date.toISOString().split('T')[0]; //YYYY-MM-DD
+      }
+
+      function getYesterdayDate() {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        return formatDate(yesterday);
+      }
+
+      function initializeCreditsAndStreak() {
+        const today = formatDate(new Date());
+
+        if (!lastStreakDate) {
+          // First time user, or very first load
+          lastStreakDate = today;
+          localStorage.setItem('lastStreakDate', lastStreakDate);
+          currentStreak = 0; // Start streak at 0
+        } else {
+          if (lastStreakDate === getYesterdayDate()) {
+            // Streak maintained
+            currentStreak++;
+            currentCredits += 1;
+            localStorage.setItem('lastStreakDate', today);
+          } else if (lastStreakDate !== today) {
+            // Streak lost (last active date is not yesterday or today)
+            currentCredits -= 3;
+            if (currentCredits < 0) currentCredits = 0; // Credits cannot go below 0
+            currentStreak = 0;
+            // Do not update lastStreakDate to today if streak is lost, it should reflect the last valid day
+            // until a new streak day is achieved
+          }
+          // If lastStreakDate === today, it means the user already visited today, do nothing.
+        }
+        localStorage.setItem('currentStreak', currentStreak);
+        updateCreditsDisplay();
+        updateAttendanceStreakTotal(); // Update the total streak display
+        createStreakBoxes(currentStreak); // Pass currentStreak to update UI
+      }
+
+      // Generate streak boxes based on the number of days in the current month
+      function createStreakBoxes(streakValue) {
+        streakBoxesContainer.innerHTML = "";
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // 0-indexed
+        const currentDay = today.getDate(); // Current day of the month
+
+        // Get the number of days in the current month
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Check if streak was lost today based on lastStreakDate
+        const wasStreakLost = lastStreakDate !== formatDate(new Date()) && lastStreakDate !== getYesterdayDate();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+          const box = document.createElement("div");
+          box.classList.add("streak-box");
+          if (wasStreakLost) {
+            box.classList.add('lost-streak'); // Mark all boxes red if streak is lost
+          } else if (i <= streakValue) {
+            box.classList.add("active");
+          }
+          box.textContent = i;
+          streakBoxesContainer.appendChild(box);
+        }
+        // If streak was lost, update lastStreakDate to today after rendering red boxes
+        if (wasStreakLost) {
+            localStorage.setItem('lastStreakDate', formatDate(new Date()));
+        }
+      }
+
+      // Update attendance demo
+      function updateAttendance(percent) {
+        attendancePercentEl.textContent = percent + "%";
+        let status = "-";
+        if (percent >= 80) status = "Excellent";
+        else if (percent >= 60) status = "Good";
+        else if (percent >= 40) status = "Average";
+        else status = "Poor";
+        attendanceStatusEl.textContent = status + " Attendance";
+      }
+
+
+      // Calendar functionality
+      const currentMonthYearEl = document.getElementById("currentMonthYear");
+      const calendarGrid = document.getElementById("calendarGrid");
+      const prevMonthBtn = document.getElementById("prevMonth");
+      const nextMonthBtn = document.getElementById("nextMonth");
+
+      let currentMonth = new Date().getMonth();
+      let currentYear = new Date().getFullYear();
+
+      // Ensure current date is used for events in the provided HTML context.
+      // Adjusting to dynamically get current date for event generation if needed.
+      const todayDate = new Date();
+      const currentMonthPadded = (todayDate.getMonth() + 1).toString().padStart(2, '0');
+      const currentYearFull = todayDate.getFullYear();
+
+      const events = {
+        // Example events: { 'YYYY-MM-DD': 'Event Name' }
+        [`${currentYearFull}-${currentMonthPadded}-10`]: 'Assignment Due',
+        [`${currentYearFull}-${currentMonthPadded}-15`]: 'Live Class',
+        [`${currentYearFull}-${currentMonthPadded}-22`]: 'Exam Prep Session',
+      };
+
+
+      function renderCalendar() {
+        calendarGrid.innerHTML = `
+          <div class="day-name">Sun</div>
+          <div class="day-name">Mon</div>
+          <div class="day-name">Tue</div>
+          <div class="day-name">Wed</div>
+          <div class="day-name">Thu</div>
+          <div class="day-name">Fri</div>
+          <div class="day-name">Sat</div>
+        `; // Clear and re-add day names
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday...
+
+        currentMonthYearEl.textContent = new Date(currentYear, currentMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+        // Add empty cells for days before the first day of the month
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          const emptyCell = document.createElement('div');
+          emptyCell.classList.add('calendar-day', 'other-month');
+          calendarGrid.appendChild(emptyCell);
+        }
+
+        // Add days of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayCell = document.createElement('div');
+          dayCell.classList.add('calendar-day', 'current-month');
+          dayCell.textContent = day;
+
+          const dateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+          if (events[dateString]) {
+            dayCell.classList.add('has-event');
+            dayCell.title = events[dateString]; // Add tooltip for event
+          }
+
+          if (day === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
+            dayCell.classList.add('today');
+          }
+
+          calendarGrid.appendChild(dayCell);
+        }
+      }
+
+      prevMonthBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        renderCalendar();
+      });
+
+      nextMonthBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        renderCalendar();
+      });
+
+      // Init on load
+      initializeCreditsAndStreak(); // Initialize and update credits/streak
+      updateAttendance(85);
+      renderCalendar(); // Render calendar on load
+
+      // Close sidebar if click outside on mobile
+      window.addEventListener("click", (e) => {
+        if (window.innerWidth <= 1024) {
+          if (
+            !sidebar.contains(e.target) &&
+            !sidebarToggle.contains(e.target)
+          ) {
+            sidebar.classList.remove("show");
+            sidebar.classList.add("hide");
+          }
+        }
+      });
+
+      // Handle window resize to reset sidebar
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 1024) {
+          sidebar.classList.remove("hide");
+          sidebar.classList.remove("show");
+        } else {
+          sidebar.classList.add("hide");
+        }
+        updateCarousel(); // Also update carousel on resize
+      });
+
+      // Carousel functionality
+      let currentSlide = 0;
+      const track = document.querySelector(".carousel-track");
+      const slides = document.querySelectorAll(".carousel-track img");
+      const carousel = document.querySelector(".responsive-carousel");
+
+      function updateCarousel() {
+        if (slides.length > 0) {
+          const slideWidth = slides[0].clientWidth;
+          track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        }
+      }
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length; // loops infinitely
+        updateCarousel();
+      }
+
+      function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        updateCarousel();
+      }
+
+      let autoSlide = setInterval(nextSlide, 3000); // start auto sliding
+
+      // Pause on hover
+      carousel.addEventListener("mouseenter", () => {
+        clearInterval(autoSlide);
+      });
+
+      // Resume on mouse leave
+      carousel.addEventListener("mouseleave", () => {
+        autoSlide = setInterval(nextSlide, 3000);
+      });
+
+      // Initialize position
+      updateCarousel();
+    </script>
+  </body>
+</html>
