@@ -60,8 +60,13 @@
         --card-profile-dark: #ea580c;
         --card-contact-light: #14b8a6;
         --card-contact-dark: #0d9488;
+        --card-course-library-light: #8b5a04;
+        --card-course-library-dark: #4d3100;
       }
-
+ a {
+        text-decoration: none;
+        color: inherit;
+      }
       /* Cosmic Background Animations */
       .cosmic-bg {
         position: fixed;
@@ -810,7 +815,9 @@
       .contact {
         background-color: var(--card-contact-light);
       }
-
+      .course-library{
+        background-color: var(--card-course-library-light);
+      }
       /* Dark mode card adjustments */
       body.dark .join {
         background-color: var(--card-join-dark);
@@ -843,7 +850,9 @@
       body.dark .contact {
         background-color: var(--card-contact-dark);
       }
-
+     .course-library{
+        background-color: var(--card-course-library-light);
+      }
       /* Bottom Mobile Navigation */
       .bottom-nav {
         display: none;
@@ -946,6 +955,28 @@
         transform: scale(1.05);
       }
 
+
+      .modal-overlay {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.modal-content {
+  background: #fff; padding: 2rem; border-radius: 8px; text-align: center; min-width: 300px;
+}
+.modal-actions { margin-top: 1.5rem; }
+.btn { padding: 0.5rem 1.2rem; border: none; border-radius: 4px; margin: 0 8px; cursor: pointer; }
+.btn-danger { background: #e74c3c; color: #fff; }
+.btn-secondary { background: #888; color: #fff; }
+
+
+.streak-box.current-day {
+  border: 2px solid #f39c12;
+  box-shadow: 0 0 8px #f1c40f;
+}
+.streak-box.lost-streak {
+  background: #ffb3b3 !important;
+  color: #b10000 !important;
+}
       /* Responsive tweaks */
       @media (max-width: 1024px) {
         .sidebar {
@@ -1073,6 +1104,18 @@
     </style>
   </head>
   <body>
+
+    <!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout?</p>
+    <div class="modal-actions">
+      <button id="logoutConfirmBtn" class="btn btn-danger">Logout</button>
+      <button id="logoutCancelBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
     <div class="cosmic-bg" id="cosmicBg"></div>
 
     <div class="layout">
@@ -1170,12 +1213,12 @@
 
           <nav class="nav-links">
             <a href="#" onclick="alert('Home clicked')">Home</a>
-            <a href="#" onclick="alert('Courses clicked')">Courses</a>
-            <a href="#" onclick="alert('Tasks clicked')">Tasks</a>
-            <a href="#" onclick="alert('Notes clicked')">Notes</a>
-            <a href="#" onclick="alert('Discussion clicked')">Discussion</a>
-            <a href="#" onclick="alert('Internships clicked')">Internships</a>
-            <a href="#" onclick="alert('Contact clicked')">Contact</a>
+            <a href="library.html">Courses</a>
+            <a href="#">Tasks</a>
+            <a href="#">Notes</a>
+            <a href="#">Discussion</a>
+            <a href="internship.html">Internships</a>
+            <a href="#">Contact</a>
           </nav>
 
           <label class="dark-mode-toggle" title="Toggle Dark Mode">
@@ -1317,6 +1360,7 @@
                 </h2>
                 <p>Enter live classes with a single click.</p>
             </div>
+            <a href="codeplayground.html">
             <div class="card code">
                 <h2>
                 <svg
@@ -1335,6 +1379,7 @@
                 </h2>
                 <p>Practice coding challenges and projects.</p>
             </div>
+            </a>
             <div class="card notes">
                 <h2>
                 <svg
@@ -1356,6 +1401,7 @@
                 </h2>
                 <p>Download and review course notes.</p>
             </div>
+            <a href="task.html">
             <div class="card submit">
                 <h2>
                 <svg
@@ -1381,6 +1427,8 @@
                 </h2>
                 <p>Upload your assignments easily.</p>
             </div>
+            </a>
+            <a href="chat.html">
             <div class="card discuss">
                 <h2>
                 <svg
@@ -1402,6 +1450,26 @@
                 </h2>
                 <p>Join forums and group discussions.</p>
             </div>
+            </a>
+                    <a href="library.html">  <div class="card course-library">
+    <h2>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-journal-bookmark"
+            viewBox="0 0 16 16"
+        >
+            <path d="M6 8V1h1v6.117L8.447 6.276l.553.832L7 8.883 5 7.108l.553-.832L6 7.117z"/>
+            <path d="M2 0h9a2 2 0 0 1 2 2v13a1 1 0 0 1-1.447.894L8 13.118l-3.553 1.776A1 1 0 0 1 3 15V2a2 2 0 0 1 2-2z"/>
+        </svg>
+        Course Library
+    </h2>
+    <p>Browse and access all your enrolled and available courses here.</p>
+</div></a>
+
+<a href="internship.html">
             <div class="card internship">
                 <h2>
                 <svg
@@ -1420,6 +1488,7 @@
                 </h2>
                 <p>Explore internship opportunities.</p>
             </div>
+</a>
             <div class="card feedback">
                 <h2>
                 <svg
@@ -1505,321 +1574,295 @@
         <small>Profile</small>
       </a>
     </nav>
+<script type="module">
+// Supabase config
+const SUPABASE_URL = "https://qhrdtxuwxrnbxvtyxfmj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFocmR0eHV3eHJuYnh2dHl4Zm1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNTQ5NTIsImV4cCI6MjA2MzgzMDk1Mn0.H38kfGlcwuIz9Ir0MKpHuHgUsXfBfPN17IxI_4VLCEc";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <script>
-      const sidebar = document.getElementById("sidebar");
-      const sidebarToggle = document.getElementById("sidebarToggle");
-      const darkModeSwitch = document.getElementById("darkModeSwitch");
-      const streakBoxesContainer = document.getElementById("streakBoxes");
-      const attendancePercentEl = document.getElementById("attendancePercent");
-      const attendanceStatusEl = document.getElementById("attendanceStatus");
-      const attendanceStreakTotalEl = document.getElementById("attendanceStreakTotal");
-      const cosmicBg = document.getElementById("cosmicBg");
-      const currentCreditsEl = document.getElementById("currentCredits");
+// Sidebar, darkmode, cosmic bg
+const sidebar = document.getElementById("sidebar");
+const sidebarToggle = document.getElementById("sidebarToggle");
+const darkModeSwitch = document.getElementById("darkModeSwitch");
+const streakBoxesContainer = document.getElementById("streakBoxes");
+const attendancePercentEl = document.getElementById("attendancePercent");
+const attendanceStatusEl = document.getElementById("attendanceStatus");
+const attendanceStreakTotalEl = document.getElementById("attendanceStreakTotal");
+const cosmicBg = document.getElementById("cosmicBg");
+const currentCreditsEl = document.getElementById("currentCredits");
 
-      // Function to create cosmic background elements
-      function createCosmicBackground(count, type) {
-        for (let i = 0; i < count; i++) {
-          const element = document.createElement("div");
-          element.classList.add(type);
-          element.style.left = `${Math.random() * 100}%`;
-          element.style.top = `${Math.random() * 100}%`;
-          element.style.width = `${Math.random() * 2 + 1}px`;
-          element.style.height = element.style.width;
-          element.style.setProperty("--duration", `${Math.random() * 5 + 3}s`);
-          cosmicBg.appendChild(element);
-        }
-      }
+// Cosmic background
+function createCosmicBackground(count, type) {
+  for (let i = 0; i < count; i++) {
+    const element = document.createElement("div");
+    element.classList.add(type);
+    element.style.left = `${Math.random() * 100}%`;
+    element.style.top = `${Math.random() * 100}%`;
+    element.style.width = `${Math.random() * 2 + 1}px`;
+    element.style.height = element.style.width;
+    element.style.setProperty("--duration", `${Math.random() * 5 + 3}s`);
+    cosmicBg.appendChild(element);
+  }
+}
+createCosmicBackground(100, "star");
+createCosmicBackground(10, "comet");
 
-      // Create stars and comets
-      createCosmicBackground(100, "star");
-      createCosmicBackground(10, "comet");
+// Sidebar toggling
+sidebarToggle.addEventListener("click", () => {
+  if (sidebar.classList.contains("show")) {
+    sidebar.classList.remove("show");
+    sidebar.classList.add("hide");
+  } else {
+    sidebar.classList.add("show");
+    sidebar.classList.remove("hide");
+  }
+});
 
-      // Sidebar toggle for small screens
-      sidebarToggle.addEventListener("click", () => {
-        if (sidebar.classList.contains("show")) {
-          sidebar.classList.remove("show");
-          sidebar.classList.add("hide");
-        } else {
-          sidebar.classList.add("show");
-          sidebar.classList.remove("hide");
-        }
-      });
+// Dark mode
+const applyDarkMode = (isDark) => {
+  if (isDark) {
+    document.body.classList.add("dark");
+    localStorage.setItem("darkMode", "enabled");
+  } else {
+    document.body.classList.remove("dark");
+    localStorage.setItem("darkMode", "disabled");
+  }
+};
+const darkModePreference = localStorage.getItem("darkMode");
+if (darkModePreference === "enabled") {
+  darkModeSwitch.checked = true;
+  applyDarkMode(true);
+} else {
+  darkModeSwitch.checked = false;
+  applyDarkMode(false);
+}
+darkModeSwitch.addEventListener("change", (e) => {
+  applyDarkMode(e.target.checked);
+});
 
-      // Dark mode toggle
-      const applyDarkMode = (isDark) => {
-        if (isDark) {
-          document.body.classList.add("dark");
-          localStorage.setItem("darkMode", "enabled");
-        } else {
-          document.body.classList.remove("dark");
-          localStorage.setItem("darkMode", "disabled");
-        }
-      };
+// Supabase login check
+if (localStorage.getItem('student_portal_logged_in') !== 'true') {
+  window.location.replace("login.html");
+}
+let user = {};
+try {
+  user = JSON.parse(localStorage.getItem("student_portal_user") || "{}");
+} catch {}
 
-      // Set initial dark mode preference
-      const darkModePreference = localStorage.getItem("darkMode");
-      if (darkModePreference === "enabled") {
-        darkModeSwitch.checked = true;
-        applyDarkMode(true);
-      } else {
-        darkModeSwitch.checked = false;
-        applyDarkMode(false);
-      }
+// Fetch and display streak, attendance, credits from DB only
+async function loadStudentData() {
+  if (!user.student_id) {
+    console.error("No student ID found");
+    return;
+  }
+  const { data: student, error } = await supabase
+    .from("students")
+    .select("*")
+    .eq("student_id", user.student_id)
+    .single();
+  if (error || !student) {
+    console.error("Failed to load student data:", error);
+    return;
+  }
+  updateStudentProfile(student);
+  showStreakFromDB(student.streak);
+  showAttendanceFromDB(student.attendance_count);
+  showCreditsFromDB(student.credits);
+}
 
-      darkModeSwitch.addEventListener("change", (e) => {
-        applyDarkMode(e.target.checked);
-      });
+function updateStudentProfile(student) {
+  const nameParts = student.full_name ? student.full_name.split(' ') : ["-"];
+  const initials = nameParts.length > 1
+    ? nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)
+    : nameParts[0].charAt(0);
+  document.querySelector('.student-avatar').textContent = initials;
+  document.querySelector('.student-name').textContent = student.full_name || "-";
+  document.querySelector('.student-id').textContent = `ID: ${student.student_id || ""}`;
+  document.querySelector('.student-course').textContent = student.branch || "Computer Science";
+}
 
-      // Credit and Streak Logic
-      let currentCredits = parseInt(localStorage.getItem('userCredits')) || 0;
-      let lastStreakDate = localStorage.getItem('lastStreakDate');
-      let currentStreak = parseInt(localStorage.getItem('currentStreak')) || 0;
+// Show streak boxes, highlight current day, don't do local streak logic
+function showStreakFromDB(streakFromDB) {
+  streakBoxesContainer.innerHTML = "";
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const currentDay = today.getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      function updateCreditsDisplay() {
-        currentCreditsEl.textContent = currentCredits;
-        localStorage.setItem('userCredits', currentCredits);
-      }
+  for (let i = 1; i <= daysInMonth; i++) {
+    const box = document.createElement("div");
+    box.classList.add("streak-box");
 
-      function updateAttendanceStreakTotal() {
-        attendanceStreakTotalEl.textContent = `Total Streak: ${currentStreak} Days`;
-      }
+    if (streakFromDB && i <= streakFromDB) {
+      box.classList.add("active");
+    }
+    if (i === currentDay) {
+      box.classList.add("current-day");
+    }
+    box.textContent = i;
+    streakBoxesContainer.appendChild(box);
+  }
+  attendanceStreakTotalEl.textContent = `Total Streak: ${streakFromDB || 0} Days`;
+}
 
-      function formatDate(date) {
-        return date.toISOString().split('T')[0]; //YYYY-MM-DD
-      }
+// Show attendance from DB
+function showAttendanceFromDB(attendanceCount) {
+  const today = new Date();
+  const daysSoFar = today.getDate(); // Number of days till today in current month
+  let percent = 0;
+  if (daysSoFar > 0) {
+    percent = Math.round((attendanceCount / daysSoFar) * 100);
+  }
+  attendancePercentEl.textContent = percent + "%";
+  let status = "-";
+  if (percent >= 80) status = "Excellent";
+  else if (percent >= 60) status = "Good";
+  else if (percent >= 40) status = "Average";
+  else status = "Poor";
+  attendanceStatusEl.textContent = status + " Attendance";
+}
 
-      function getYesterdayDate() {
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        return formatDate(yesterday);
-      }
+// Show credits from DB
+function showCreditsFromDB(credits) {
+  currentCreditsEl.textContent = credits || 0;
+}
 
-      function initializeCreditsAndStreak() {
-        const today = formatDate(new Date());
+// Calendar functionality
+const currentMonthYearEl = document.getElementById("currentMonthYear");
+const calendarGrid = document.getElementById("calendarGrid");
+const prevMonthBtn = document.getElementById("prevMonth");
+const nextMonthBtn = document.getElementById("nextMonth");
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+const todayDate = new Date();
+const currentMonthPadded = (todayDate.getMonth() + 1).toString().padStart(2, '0');
+const currentYearFull = todayDate.getFullYear();
+const events = {
+  [`${currentYearFull}-${currentMonthPadded}-10`]: 'Assignment Due',
+  [`${currentYearFull}-${currentMonthPadded}-15`]: 'Live Class',
+  [`${currentYearFull}-${currentMonthPadded}-22`]: 'Exam Prep Session',
+};
+function renderCalendar() {
+  calendarGrid.innerHTML = `
+    <div class="day-name">Sun</div>
+    <div class="day-name">Mon</div>
+    <div class="day-name">Tue</div>
+    <div class="day-name">Wed</div>
+    <div class="day-name">Thu</div>
+    <div class="day-name">Fri</div>
+    <div class="day-name">Sat</div>
+  `;
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfWeek = firstDayOfMonth.getDay();
+  currentMonthYearEl.textContent = new Date(currentYear, currentMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.classList.add('calendar-day', 'other-month');
+    calendarGrid.appendChild(emptyCell);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayCell = document.createElement('div');
+    dayCell.classList.add('calendar-day', 'current-month');
+    dayCell.textContent = day;
+    const dateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    if (events[dateString]) {
+      dayCell.classList.add('has-event');
+      dayCell.title = events[dateString];
+    }
+    if (day === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
+      dayCell.classList.add('today');
+    }
+    calendarGrid.appendChild(dayCell);
+  }
+}
+prevMonthBtn.addEventListener('click', () => {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar();
+});
+nextMonthBtn.addEventListener('click', () => {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+});
 
-        if (!lastStreakDate) {
-          // First time user, or very first load
-          lastStreakDate = today;
-          localStorage.setItem('lastStreakDate', lastStreakDate);
-          currentStreak = 0; // Start streak at 0
-        } else {
-          if (lastStreakDate === getYesterdayDate()) {
-            // Streak maintained
-            currentStreak++;
-            currentCredits += 1;
-            localStorage.setItem('lastStreakDate', today);
-          } else if (lastStreakDate !== today) {
-            // Streak lost (last active date is not yesterday or today)
-            currentCredits -= 3;
-            if (currentCredits < 0) currentCredits = 0; // Credits cannot go below 0
-            currentStreak = 0;
-            // Do not update lastStreakDate to today if streak is lost, it should reflect the last valid day
-            // until a new streak day is achieved
-          }
-          // If lastStreakDate === today, it means the user already visited today, do nothing.
-        }
-        localStorage.setItem('currentStreak', currentStreak);
-        updateCreditsDisplay();
-        updateAttendanceStreakTotal(); // Update the total streak display
-        createStreakBoxes(currentStreak); // Pass currentStreak to update UI
-      }
+// Responsive sidebar and click-away
+window.addEventListener("click", (e) => {
+  if (window.innerWidth <= 1024) {
+    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+      sidebar.classList.remove("show");
+      sidebar.classList.add("hide");
+    }
+  }
+});
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 1024) {
+    sidebar.classList.remove("hide");
+    sidebar.classList.remove("show");
+  } else {
+    sidebar.classList.add("hide");
+  }
+  updateCarousel();
+});
 
-      // Generate streak boxes based on the number of days in the current month
-      function createStreakBoxes(streakValue) {
-        streakBoxesContainer.innerHTML = "";
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth(); // 0-indexed
-        const currentDay = today.getDate(); // Current day of the month
+// Carousel functionality
+let currentSlide = 0;
+const track = document.querySelector(".carousel-track");
+const slides = document.querySelectorAll(".carousel-track img");
+const carousel = document.querySelector(".responsive-carousel");
 
-        // Get the number of days in the current month
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+function updateCarousel() {
+  if (slides.length > 0) {
+    const slideWidth = slides[0].clientWidth;
+    track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+  }
+}
+function nextSlide() {
+  currentSlide = (currentSlide + 1) % slides.length;
+  updateCarousel();
+}
+function prevSlide() {
+  currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+  updateCarousel();
+}
+let autoSlide = setInterval(nextSlide, 3000);
+carousel.addEventListener("mouseenter", () => {
+  clearInterval(autoSlide);
+});
+carousel.addEventListener("mouseleave", () => {
+  autoSlide = setInterval(nextSlide, 3000);
+});
+updateCarousel();
 
-        // Check if streak was lost today based on lastStreakDate
-        const wasStreakLost = lastStreakDate !== formatDate(new Date()) && lastStreakDate !== getYesterdayDate();
+// Modal Logout
+document.querySelector('.sidebar-btn[onclick*="Logout"]').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('logoutModal').style.display = 'flex';
+});
+document.getElementById('logoutCancelBtn').addEventListener('click', function() {
+  document.getElementById('logoutModal').style.display = 'none';
+});
+document.getElementById('logoutConfirmBtn').addEventListener('click', async function() {
+  if (user.student_id) {
+    await supabase.from("students").update({ user_state: 'offline' }).eq("student_id", user.student_id);
+  }
+  localStorage.removeItem('student_portal_logged_in');
+  localStorage.removeItem('student_portal_user');
+  window.location.replace("login.html");
+});
 
-        for (let i = 1; i <= daysInMonth; i++) {
-          const box = document.createElement("div");
-          box.classList.add("streak-box");
-          if (wasStreakLost) {
-            box.classList.add('lost-streak'); // Mark all boxes red if streak is lost
-          } else if (i <= streakValue) {
-            box.classList.add("active");
-          }
-          box.textContent = i;
-          streakBoxesContainer.appendChild(box);
-        }
-        // If streak was lost, update lastStreakDate to today after rendering red boxes
-        if (wasStreakLost) {
-            localStorage.setItem('lastStreakDate', formatDate(new Date()));
-        }
-      }
-
-      // Update attendance demo
-      function updateAttendance(percent) {
-        attendancePercentEl.textContent = percent + "%";
-        let status = "-";
-        if (percent >= 80) status = "Excellent";
-        else if (percent >= 60) status = "Good";
-        else if (percent >= 40) status = "Average";
-        else status = "Poor";
-        attendanceStatusEl.textContent = status + " Attendance";
-      }
-
-
-      // Calendar functionality
-      const currentMonthYearEl = document.getElementById("currentMonthYear");
-      const calendarGrid = document.getElementById("calendarGrid");
-      const prevMonthBtn = document.getElementById("prevMonth");
-      const nextMonthBtn = document.getElementById("nextMonth");
-
-      let currentMonth = new Date().getMonth();
-      let currentYear = new Date().getFullYear();
-
-      // Ensure current date is used for events in the provided HTML context.
-      // Adjusting to dynamically get current date for event generation if needed.
-      const todayDate = new Date();
-      const currentMonthPadded = (todayDate.getMonth() + 1).toString().padStart(2, '0');
-      const currentYearFull = todayDate.getFullYear();
-
-      const events = {
-        // Example events: { 'YYYY-MM-DD': 'Event Name' }
-        [`${currentYearFull}-${currentMonthPadded}-10`]: 'Assignment Due',
-        [`${currentYearFull}-${currentMonthPadded}-15`]: 'Live Class',
-        [`${currentYearFull}-${currentMonthPadded}-22`]: 'Exam Prep Session',
-      };
-
-
-      function renderCalendar() {
-        calendarGrid.innerHTML = `
-          <div class="day-name">Sun</div>
-          <div class="day-name">Mon</div>
-          <div class="day-name">Tue</div>
-          <div class="day-name">Wed</div>
-          <div class="day-name">Thu</div>
-          <div class="day-name">Fri</div>
-          <div class="day-name">Sat</div>
-        `; // Clear and re-add day names
-
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const firstDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday...
-
-        currentMonthYearEl.textContent = new Date(currentYear, currentMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
-
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDayOfWeek; i++) {
-          const emptyCell = document.createElement('div');
-          emptyCell.classList.add('calendar-day', 'other-month');
-          calendarGrid.appendChild(emptyCell);
-        }
-
-        // Add days of the month
-        for (let day = 1; day <= daysInMonth; day++) {
-          const dayCell = document.createElement('div');
-          dayCell.classList.add('calendar-day', 'current-month');
-          dayCell.textContent = day;
-
-          const dateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-          if (events[dateString]) {
-            dayCell.classList.add('has-event');
-            dayCell.title = events[dateString]; // Add tooltip for event
-          }
-
-          if (day === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
-            dayCell.classList.add('today');
-          }
-
-          calendarGrid.appendChild(dayCell);
-        }
-      }
-
-      prevMonthBtn.addEventListener('click', () => {
-        currentMonth--;
-        if (currentMonth < 0) {
-          currentMonth = 11;
-          currentYear--;
-        }
-        renderCalendar();
-      });
-
-      nextMonthBtn.addEventListener('click', () => {
-        currentMonth++;
-        if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
-        }
-        renderCalendar();
-      });
-
-      // Init on load
-      initializeCreditsAndStreak(); // Initialize and update credits/streak
-      updateAttendance(85);
-      renderCalendar(); // Render calendar on load
-
-      // Close sidebar if click outside on mobile
-      window.addEventListener("click", (e) => {
-        if (window.innerWidth <= 1024) {
-          if (
-            !sidebar.contains(e.target) &&
-            !sidebarToggle.contains(e.target)
-          ) {
-            sidebar.classList.remove("show");
-            sidebar.classList.add("hide");
-          }
-        }
-      });
-
-      // Handle window resize to reset sidebar
-      window.addEventListener("resize", () => {
-        if (window.innerWidth > 1024) {
-          sidebar.classList.remove("hide");
-          sidebar.classList.remove("show");
-        } else {
-          sidebar.classList.add("hide");
-        }
-        updateCarousel(); // Also update carousel on resize
-      });
-
-      // Carousel functionality
-      let currentSlide = 0;
-      const track = document.querySelector(".carousel-track");
-      const slides = document.querySelectorAll(".carousel-track img");
-      const carousel = document.querySelector(".responsive-carousel");
-
-      function updateCarousel() {
-        if (slides.length > 0) {
-          const slideWidth = slides[0].clientWidth;
-          track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-        }
-      }
-
-      function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length; // loops infinitely
-        updateCarousel();
-      }
-
-      function prevSlide() {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        updateCarousel();
-      }
-
-      let autoSlide = setInterval(nextSlide, 3000); // start auto sliding
-
-      // Pause on hover
-      carousel.addEventListener("mouseenter", () => {
-        clearInterval(autoSlide);
-      });
-
-      // Resume on mouse leave
-      carousel.addEventListener("mouseleave", () => {
-        autoSlide = setInterval(nextSlide, 3000);
-      });
-
-      // Initialize position
-      updateCarousel();
-    </script>
+// Init on load
+loadStudentData();
+renderCalendar();
+</script>
   </body>
 </html>
